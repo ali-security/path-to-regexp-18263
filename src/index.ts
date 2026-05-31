@@ -475,10 +475,14 @@ export function pathToRegexp(
   const keys: Keys = [];
   const flags = sensitive ? "" : "i";
   const sources: string[] = [];
+  let combinations = 0;
 
   for (const input of pathsToArray(path, [])) {
     const data = typeof input === "object" ? input : parse(input, options);
     for (const tokens of flatten(data.tokens, 0, [])) {
+      if (combinations++ >= 256) {
+        throw new PathError("Too many path combinations", data.originalPath);
+      }
       sources.push(toRegExpSource(tokens, delimiter, keys, data.originalPath));
     }
   }
